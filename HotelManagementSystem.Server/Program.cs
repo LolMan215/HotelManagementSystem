@@ -5,6 +5,7 @@ using HotelManagementSystemDAL.Interfaces;
 using HotelManagementSystemDAL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +14,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var AllowSpecificOrigins = "_allowSpecificOrigins";
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -54,6 +56,35 @@ builder.Services.AddScoped<IGenericRepository<Room>, RoomRepository>();
 builder.Services.AddScoped<IGenericRepository<RoomType>, RoomTypeRepository>();
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: AllowSpecificOrigins,
+        policy =>
+        {
+            policy.AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials()
+                  .WithOrigins("https://localhost:4200");
+        });
+});
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = ActionContext =>
+    {
+        var errors = ActionContext.ModelState
+        .Where(x => x.Value.Errors.Count > 0)
+        .SelectMany(x => x.Value.Errors)
+        .Select(x => x.ErrorMessage).ToArray();
+
+        var toReturn = new
+        {
+            Errors = errors
+        };
+
+        return new BadRequestObjectResult(toReturn);
+    };
+});
 
 var Configuration = builder.Configuration;
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -70,9 +101,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
     options.Password.RequireNonAlphanumeric = false;
 
     options.SignIn.RequireConfirmedEmail = true;
-})
-
-    .AddRoles<IdentityRole<int>>()
+}).AddRoles<IdentityRole<int>>()
     .AddRoleManager<RoleManager<IdentityRole<int>>>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager<SignInManager<ApplicationUser>>()
@@ -92,19 +121,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
 var app = builder.Build();
 
 app.UseDefaultFiles();
+
 app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
+app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors(AllowSpecificOrigins);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 

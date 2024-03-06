@@ -4,12 +4,14 @@
     using HotelManagementSystemBL.Services;
     using HotelManagementSystemDAL.Entities;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Cors;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using System.Security.Claims;
 
-    [Route("api/[controller]")]
+    //[EnableCors]
+    [Route("api/account")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -68,7 +70,7 @@
             var result = await _userManager.CreateAsync(applicationUserToAdd, model.Password);
             if (!result.Succeeded) return BadRequest(result.Errors);
 
-            return Ok("Account has been created");
+            return Ok(new JsonResult(new {title = "Account created", message = "Account has been created"}));
         }
 
 
