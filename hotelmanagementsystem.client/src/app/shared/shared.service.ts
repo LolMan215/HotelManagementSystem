@@ -10,8 +10,8 @@ export class SharedService {
 
   constructor(private modalService: BsModalService) { }
 
-  showNotifications(isSuccess: boolean, title: string, message: string){
-    const initialState: ModalOptions = {
+  showNotification(isSuccess: boolean, title: string, message: string){
+    const initalState: ModalOptions = {
       initialState: {
         isSuccess,
         title,
@@ -19,6 +19,6 @@ export class SharedService {
       }
     };
 
-    this.bsModalRef = this.modalService.show(NotificationComponent, initialState);
+    this.bsModalRef = this.modalService.show(NotificationComponent, initalState);
   }
 }

@@ -4,13 +4,11 @@
     using HotelManagementSystemBL.Services;
     using HotelManagementSystemDAL.Entities;
     using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Cors;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using System.Security.Claims;
 
-    //[EnableCors]
     [Route("api/account")]
     [ApiController]
     public class AccountController : ControllerBase

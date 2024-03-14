@@ -4,6 +4,7 @@ using HotelManagementSystemDAL.Entities;
 using HotelManagementSystemDAL.Interfaces;
 using HotelManagementSystemDAL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -120,6 +121,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false
         };
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    var policy = new AuthorizationPolicyBuilder("Bearer").RequireAuthenticatedUser().Build();
+
+    options.DefaultPolicy = policy;
+});
 
 
 var app = builder.Build();

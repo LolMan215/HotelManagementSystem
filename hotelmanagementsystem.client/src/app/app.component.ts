@@ -1,12 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { AccountService } from './account/account.service';
 
-interface WeatherForecast {
-  date: string;
-  temperatureC: number;
-  temperatureF: number;
-  summary: string;
-}
 
 @Component({
   selector: 'app-root',
@@ -14,24 +9,24 @@ interface WeatherForecast {
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  public forecasts: WeatherForecast[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private accountService: AccountService) {}
 
   ngOnInit() {
-    //this.getForecasts();
+    this.refreshUser();
   }
 
-  getForecasts() {
-    this.http.get<WeatherForecast[]>('/weatherforecast').subscribe(
-      (result) => {
-        this.forecasts = result;
-      },
-      (error) => {
-        console.error(error);
-      }
-    );
+  private refreshUser(){
+    const jwt = this.accountService.getJWT();
+    if(jwt){
+      this.accountService.refreshUser(jwt).subscribe({
+        next: _ => {},
+        error: _ => {
+          this.accountService.logout();
+        }
+      })
+    } else{
+      this.accountService.refreshUser(null).subscribe();
+    }
   }
-
-  title = 'hotelmanagementsystem.client';
 }
