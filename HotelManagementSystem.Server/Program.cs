@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -88,10 +89,14 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 
 var Configuration = builder.Configuration;
+
+Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseNpgsql(Configuration.GetConnectionString("PgConnectionString")));
 
 builder.Services.AddScoped<JWTService>();
+builder.Services.AddScoped<EmailService>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
 {
